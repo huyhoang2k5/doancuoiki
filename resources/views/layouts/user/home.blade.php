@@ -146,6 +146,8 @@
     font-size: 18px;
   }
 
+  .search-inputNumber,
+  .search-inputStart,
   .search-input,
   .search-select,
   .search-date {
@@ -161,6 +163,8 @@
     font-family: Faustina;
   }
 
+  .search-inputNumber:focus,
+  .search-inputStart:focus,
   .search-input:focus,
   .search-select:focus,
   .search-date:focus {
@@ -227,6 +231,8 @@
       /* Simplify shadows */
     }
 
+    .search-inputNumber,
+    .search-inputStart,
     .search-input,
     .search-select,
     .search-date {
@@ -248,6 +254,8 @@
       /* Simplify border */
     }
 
+    .search-inputNumber,
+    .search-inputStart,
     .search-input,
     .search-select,
     .search-date {
@@ -1248,14 +1256,14 @@
 
       @if (Auth::check())
       <a href="{{Route('user.tour')}}" class="a_tour">
-        <p class="p_card">xem thêm tour<i class="bi bi-arrow-right"></i></p>
+      <p class="p_card">xem thêm tour<i class="bi bi-arrow-right"></i></p>
       </a>
 
-      @else
+    @else
       <a href="{{Route('guest.tour')}}" class="a_tour">
-        <p class="p_card">xem thêm tour<i class="bi bi-arrow-right"></i></p>
+      <p class="p_card">xem thêm tour<i class="bi bi-arrow-right"></i></p>
       </a>
-      @endif
+    @endif
     </div>
 
     <div class="deals-wrapper">
@@ -1273,7 +1281,7 @@
     <div class="header">Điểm đến ưa thích</div>
     <div class="hang-card">
       @yield('card')
-      
+
     </div>
   </section>
 

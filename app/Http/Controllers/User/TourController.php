@@ -10,11 +10,21 @@ use Illuminate\Http\Request;
 class TourController extends Controller
 {
     //
-    public function index($view = 'user.home')
+    public function index(Request $request, $view = 'user.home')
     {
-        
+
         $tours = TourDuLich::all(); // Lấy tất cả các tour từ cơ sở dữ liệu
         $location = dia_diem::all();
+        $nameTour = TourDuLich::select('ten_tour', 'hinh_anh')->get();
+
+        $nameTour->map(function ($tour) {
+            $tour->hinh_anh = asset('storage/' . $tour->hinh_anh);
+            return $tour;
+        });
+        
+        if ($request->expectsJson()) {
+            return response()->json($nameTour);
+        }
 
         return view($view, compact('tours', 'location')); // Truyền $tours và $taikhoan vào view
     }
