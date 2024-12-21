@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\TourDuLich;
 use Illuminate\Http\Request;
@@ -92,7 +93,6 @@ class ToursController extends Controller
             $fileName = time() . '-' . $file->getClientOriginalName();
             $path = $file->storeAs('tour', $fileName, 'public');
             $tour->hinh_anh = $path;
-
         }
 
         $tour->save();
@@ -109,11 +109,29 @@ class ToursController extends Controller
 
     public function delete_tour($ma_tour)
     {
-        $tour = TourDuLich::findOrFail($ma_tour);
-        if ($tour->hinh_anh) {
-            Storage::disk('public')->delete($tour->hinh_anh);
+        try {
+            $tour = TourDuLich::findOrFail($ma_tour);
+            if ($tour->hinh_anh) {
+                Storage::disk('public')->delete($tour->hinh_anh);
+            }
+            $tour->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false], 500);
         }
-        $tour->delete();
         return redirect()->route('list_tour')->with('success', 'Tour đã được xóa thành công!');
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+
+        $data = TourDuLich::where('ma_tour', 'LIKE', "%{$query}%")
+            ->orWhere('ten_tour', 'LIKE', "%{$query}%")
+            ->orWhere('gia', 'LIKE', "%{$query}%")
+            ->get();
+
+
+        return response()->json($data);
     }
 }

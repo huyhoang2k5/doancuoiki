@@ -89,7 +89,7 @@
     /* Khoảng cách giữa icon và text */
     transition: color 0.3s ease;
     margin: 20px;
-    
+
   }
 
   nav ul li a i {
@@ -298,6 +298,10 @@
     margin-top: 5px;
     /* Tạo khoảng cách nhỏ giữa các nút */
   }
+
+  .active {
+    color: #007bff;
+  }
 </style>
 
 <body>
@@ -313,53 +317,102 @@
     <nav>
       <div class="nav-menu">
 
-
-        @if (Auth::check())
-        <ul class="menu">
-          <li><a href="{{Route('home')}}"><i class="fa-solid fa-house"></i>Trang chủ</a></li>
-          <li class="dropdown"><a href="{{Route('user.tour')}}"><i class="fa-solid fa-map"></i> Tours</a></li>
-          <li><a href="{{Route('user.location')}}"><i class="fa-solid fa-star"></i>Địa điểm</a></li>
-          <li><a href="{{Route('user.lienhe')}}"><i class="fa-solid fa-phone"></i>Liên hệ</a></li>
-          <li><a href="{{Route('user.introduct')}}"><i class="fa-solid fa-info-circle"></i>Giới thiệu</a></li>
-          <li class="dropdown login-dropdown" style="color:#FFFFFF">
-            <a class="login-icon">
-              <i class="fa-solid fa-user-circle" style="font-size: 40px;"></i>
-            </a>
-            <ul class="dropdown-menu" style="width: 150px">
-              <li class="dropdown-item">
-                <a href="{{ route('user.profile', ['id' => Auth::user()->id]) }}">
-                  Trang cá nhân
-                </a>
-              </li>
-              <li class="divider"></li>
-              <li class="dropdown-item">
-                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                  @csrf
-                  <button type="submit">
-                    Đăng Xuất
-                  </button>
-                </form>
-              </li>
-            </ul>
+        @if (Auth::check() && !Auth::user()->is_admin)
+      <ul class="menu">
+        <li><a href="{{Route('home')}}" class="{{ Request::routeIs('home') ? 'active' : '' }}"><i
+          class="fa-solid fa-house"></i>Trang chủ</a></li>
+        <li><a href="{{Route('user.tour')}}" class="{{ Request::routeIs('user.tour') ? 'active' : '' }}"><i
+          class="fa-solid fa-map"></i> Tours</a></li>
+        <li><a href="{{Route('user.location')}}" class="{{ Request::routeIs('user.location') ? 'active' : '' }}"><i
+          class="fa-solid fa-star"></i>Địa điểm</a></li>
+        <li><a href="{{Route('user.lienhe')}}" class="{{ Request::routeIs('user.lienhe') ? 'active' : '' }}"><i
+          class="fa-solid fa-phone"></i>Liên hệ</a></li>
+        <li><a href="{{Route('user.introduct')}}" class="{{ Request::routeIs('user.introduct') ? 'active' : '' }}"><i
+          class="fa-solid fa-info-circle"></i>Giới thiệu</a></li>
+        <li class="dropdown login-dropdown" style="color:#FFFFFF">
+        <a class="login-icon">
+          <i class="fa-solid fa-user-circle" style="font-size: 35px;"></i>
+        </a>
+        <ul class="dropdown-menu" style="width: 150px">
+          <li class="dropdown-item" style="margin: 0;">
+          <a href="{{ route('user.profile', ['id' => Auth::user()->id]) }}" style="font-size: 14px;">
+            Trang cá nhân
+          </a>
           </li>
-
-        </ul>
-
-
-        @else
-        <ul class="menu">
-          <li><a href="{{Route('common')}}"><i class="fa-solid fa-house"></i>Trang chủ</a></li>
-          <li class="dropdown"><a href="{{Route('guest.tour')}}"><i class="fa-solid fa-map"></i> Tours</a></li>
-          <li><a href="{{Route('guest.location')}}"><i class="fa-solid fa-star"></i>Địa điểm</a></li>
-          <li><a href="{{Route('guest.lienhe')}}"><i class="fa-solid fa-phone"></i>Liên hệ</a></li>
-          <li><a href="{{Route('guest.introduct')}}"><i class="fa-solid fa-info-circle"></i>Giới thiệu</a></li>
-          <li class="dropdown login-dropdown" style="color:#FFFFFF">
-            <a class="login-icon" href="{{ route('login') }}">
-              <i class="fa-solid fa-user-circle" style="font-size: 40px;"></i>
-            </a>
+          <li class="divider" style="margin: 0;"></li>
+          <li class="dropdown-item" style="margin: 0;">
+          <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+            @csrf
+            <button type="submit">
+            Đăng Xuất
+            </button>
+          </form>
           </li>
         </ul>
-        @endif
+        </li>
+
+      </ul>
+
+    @elseif(Auth::check() && Auth::user()->is_admin)
+    <ul class="menu">
+      <li><a href="{{Route('home')}}" class="{{ Request::routeIs('home') ? 'active' : '' }}"><i
+        class="fa-solid fa-house"></i>Trang chủ</a></li>
+      <li><a href="{{Route('user.tour')}}" class="{{ Request::routeIs('user.tour') ? 'active' : '' }}"><i
+        class="fa-solid fa-map"></i> Tours</a></li>
+      <li><a href="{{Route('user.location')}}" class="{{ Request::routeIs('user.location') ? 'active' : '' }}"><i
+        class="fa-solid fa-star"></i>Địa điểm</a></li>
+      <li><a href="{{Route('user.lienhe')}}" class="{{ Request::routeIs('user.lienhe') ? 'active' : '' }}"><i
+        class="fa-solid fa-phone"></i>Liên hệ</a></li>
+      <li><a href="{{Route('user.introduct')}}" class="{{ Request::routeIs('user.introduct') ? 'active' : '' }}"><i
+        class="fa-solid fa-info-circle"></i>Giới thiệu</a></li>
+      <li class="dropdown login-dropdown" style="color:#FFFFFF">
+      <a class="login-icon">
+        <i class="fa-solid fa-user-circle" style="font-size: 35px;"></i>
+      </a>
+      <ul class="dropdown-menu" style="width: 150px">
+        <li class="dropdown-item" style="margin: 0;">
+        <a href="{{ route('user.profile', ['id' => Auth::user()->id]) }}" style="font-size: 14px;">
+          Trang cá nhân
+        </a>
+        </li>
+        <li class="dropdown-item" style="margin: 0;">
+        <a href="{{ route('dashboard') }} " style="font-size: 14px;">
+          Trang điều khiển
+        </a>
+        </li>
+        <li class="divider" style="margin: 0;"></li>
+        <li class="dropdown-item" style="margin: 0;">
+        <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+          @csrf
+          <button type="submit">
+          Đăng Xuất
+          </button>
+        </form>
+        </li>
+      </ul>
+      </li>
+
+    </ul>
+  @else
+  <ul class="menu">
+    <li><a href="{{Route('common')}}" class="{{ Request::routeIs('common') ? 'active' : '' }}"><i
+      class="fa-solid fa-house"></i>Trang chủ</a></li>
+    <li><a href="{{Route('guest.tour')}}" class="{{ Request::routeIs('guest.tour') ? 'active' : '' }}"><i
+      class="fa-solid fa-map"></i> Tours</a></li>
+    <li><a href="{{Route('guest.location')}}" class="{{ Request::routeIs('guest.location') ? 'active' : '' }}"><i
+      class="fa-solid fa-star"></i>Địa điểm</a></li>
+    <li><a href="{{Route('guest.lienhe')}}" class="{{ Request::routeIs('guest.lienhe') ? 'active' : '' }}"><i
+      class="fa-solid fa-phone"></i>Liên hệ</a></li>
+    <li><a href="{{Route('guest.introduct')}}"
+      class="{{ Request::routeIs('guest.introduct') ? 'active' : '' }}"><i
+      class="fa-solid fa-info-circle"></i>Giới thiệu</a></li>
+    <li class="dropdown login-dropdown" style="color:#FFFFFF">
+    <a class="login-icon" href="{{ route('login') }}">
+      <i class="fa-duotone fa-solid fa-user-plus" style="font-size: 25px;"></i>
+    </a>
+    </li>
+  </ul>
+@endif
       </div>
     </nav>
   </header>
@@ -371,13 +424,40 @@
   }
 </script>
 <script>
-  window.addEventListener("scroll", function() {
+  window.addEventListener("scroll", function () {
     const header = document.querySelector("header");
     if (window.scrollY > 50) {
       header.classList.add("scrolled"); // Thêm lớp 'scrolled' khi cuộn
     } else {
       header.classList.remove("scrolled"); // Xóa lớp 'scrolled' khi trở về trên cùng
     }
+  });
+</script>
+
+<script>
+  // Lấy tất cả các liên kết trong menu
+  const menuLinks = document.querySelectorAll('.menu li a');
+
+  // Kiểm tra trạng thái được lưu trong localStorage
+  const activeLink = localStorage.getItem('activeLink');
+  if (activeLink) {
+    // Gán class active cho mục được lưu
+    menuLinks.forEach(link => link.classList.remove('active'));
+    document.querySelector(.menu li a[href = "${activeLink}"]).classList.add('active');
+  }
+
+  // Thêm sự kiện click vào từng liên kết
+  menuLinks.forEach(link => {
+    link.addEventListener('click', function (event) {
+      // Lưu đường dẫn của liên kết vào localStorage
+      localStorage.setItem('activeLink', this.getAttribute('href'));
+
+      // Xóa class active khỏi tất cả các mục
+      menuLinks.forEach(item => item.classList.remove('active'));
+
+      // Thêm class active cho liên kết được nhấp
+      this.classList.add('active');
+    });
   });
 </script>
 

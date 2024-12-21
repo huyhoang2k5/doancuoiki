@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\dia_diem;
 use App\Models\NoiDungBaiViet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class LocationsController extends Controller
 {
@@ -23,35 +26,48 @@ class LocationsController extends Controller
     {
         $validatedData = $request->validate([
             'TenDD' => 'required|string|max:255',
-            'diachi' => 'required|string|max:255',
+            'diachi' => 'required|string',
             'hinhanh' => 'required|string|max:255',
             'mota' => 'required|string|max:255',
         ]);
 
+
+
         $model = new dia_diem();
         $model->ten_dia_diem = $validatedData['TenDD'];
-        $model->dia_chi = $validatedData['diachi'];
+        $model->lien_ket_ban_do = $validatedData['diachi'];
         $model->duong_dan_anh = $validatedData['hinhanh'];
         $model->mo_ta = $validatedData['mota'];
         $model->save();
         return redirect()->route('list_diadiem')->with('success', 'Dữ liệu đã được lưu thành công.');
     }
 
-    public function update(Request $request, $ma_dia_diem)
+    public function update(Request $request, $id)
     {
+
         $request->validate([
             'TenDD' => 'max:255',
             'mota' => 'max:255',
             'hinhanh' => 'max:255',
-            'diachi' => 'max:255',
+            'diachi' => 'max:500',
         ]);
 
         // Tìm và cập nhật dữ liệu
-        $diadiem = dia_diem::findOrFail($ma_dia_diem);
+        $diadiem = dia_diem::findOrFail($id);
         $diadiem->ten_dia_diem = $request->input('TenDD');
         $diadiem->mo_ta = $request->input('mota');
-        $diadiem->duong_dan_anh = $request->input('hinhanh');
-        $diadiem->dia_chi = $request->input('diachi');
+        if ($request->hasFile('hinhanh')) {
+
+            if ($diadiem->hinh_anh) {
+                Storage::disk('public')->delete($diadiem->hinh_anh);
+            }
+
+            $file = $request->file('hinhanh');
+            $fileName = time() . '-' . $file->getClientOriginalName();
+            $path = $file->storeAs('diadiem', $fileName, 'public');
+            $diadiem->hinh_anh = $path;
+        }
+        $diadiem->lien_ket_ban_do = $request->input('diachi');
         $diadiem->save();
 
         return redirect()->route('list_diadiem')->with('success', 'Cập nhật thành công!');
@@ -59,18 +75,29 @@ class LocationsController extends Controller
 
 
 
-    public function edit($ma_dia_diem)
+    public function edit($id)
     {
-        $diadiem = dia_diem::findOrFail($ma_dia_diem);
+        $diadiem = dia_diem::findOrFail($id);
         return view('admin.edit_diadiem', compact('diadiem'));
     }
 
-    public function delete_locations($ma_dia_diem)
+    public function delete_locations($id)
     {
-        $location = dia_diem::findOrFail($ma_dia_diem);
+        $location = dia_diem::findOrFail($id);
+
+        // Xóa ảnh nếu có
+        if ($location->hinh_anh) {
+            Storage::disk('public')->delete($location->hinh_anh);
+        }
+
+        // Xóa dữ liệu
         $location->delete();
-        return redirect()->route('list_diadiem')->with('success', 'Địa điểm đã được xóa thành công!');
+
+        // Trả về thông báo thành công
+        return response()->json(['success' => true]);
     }
+
+
     public function store(Request $request)
     {
         // Validate dữ liệu đầu vào
@@ -135,5 +162,15 @@ class LocationsController extends Controller
         // Trở lại và thông báo thành công
         return redirect()->route('list_diadiem')->with('success', 'Dữ liệu đã được lưu thành công.');
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
 
+        $data = dia_diem::where('id', 'LIKE', "%{$query}%")
+            ->orWhere('ten_dia_diem', 'LIKE', "%{$query}%")
+            ->get();
+
+
+        return response()->json($data);
+    }
 }

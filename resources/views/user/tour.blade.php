@@ -9,7 +9,7 @@
                 <span class="icon-location">📍 Khởi hành từ: {{$item->diem_khoi_hanh}}</span>
             </div>
             <div class="mid-row">
-                <h3>{{$item->TenTour}}</h3>
+                <h3>{{$item->ten_tour}}</h3>
                 <p class="tour-price">{{ number_format($item->gia, 0, '', '.') }}đ</p>
             </div>
             <div class="bottom-row">

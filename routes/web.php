@@ -52,6 +52,8 @@ Route::group(['prefix' => 'home', 'middleware' => 'auth'], function () {
     Route::get('/payment', [BookTourController::class, 'paymentPage'])->name('payment.page');
     Route::post('/payment/process', [BookTourController::class, 'processPayment'])->name('payment.process');
 
+    Route::get('/search', [TourController::class, 'search'])->name('search');
+
 });
 
 // Route group cho các route yêu cầu quyền admin
@@ -67,14 +69,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 
     Route::delete('/delete_account/{id}', [AccountController::class, 'delete_account'])->name('delete_account');
     Route::get('/search_accounts', [AccountController::class, 'search'])->name('search_accounts');
 
-    /* Blog Routing */
-    // Route::get('/blog', [BlogController::class, 'index'])->name('list_baiviet');
-    // Route::get('/add_blog', [BlogController::class, 'show_add_baiviet'])->name('add_baiviet');
-    // Route::post('/add_blog_post', [BlogController::class, 'store'])->name('add_baiviet_post');
-    // Route::get('/edit_blog/{ma_dia_diem}', [BlogController::class, 'edit'])->name('edit_baiviet');
-    // Route::put('/edit_blog/{ma_dia_diem}', [BlogController::class, 'update'])->name('edit_baiviet_post');
-    // Route::delete('/delete_blog/{ma_dia_diem}', [BlogController::class, 'delete_blog'])->name('delete_blog');
-    // Route::get('/search_blog', [BlogController::class, 'search'])->name('search_locations');
 
     /* Booking Tour Routing */
     Route::get('/bills', [BookingTourController::class, 'index'])->name('list_booking');
@@ -88,9 +82,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 
     Route::get('/locations', [LocationsController::class, 'index'])->name('list_diadiem');
     Route::get('/add_locations', [LocationsController::class, 'show_add_diadiem'])->name('add_diadiem');
     Route::post('/add_diadiem_post', [LocationsController::class, 'store'])->name('add_diadiem_post');
-    Route::get('/edit_location/{ma_dia_diem}', [LocationsController::class, 'edit'])->name('edit_diadiem');
-    Route::put('/edit_location/{ma_dia_diem}', [LocationsController::class, 'update'])->name('edit_diadiem_post');
-    Route::delete('/delete_locations/{ma_dia_diem}', [LocationsController::class, 'delete_locations'])->name('delete_locations');
+    Route::get('/edit_location/{id}', [LocationsController::class, 'edit'])->name('edit_diadiem');
+    Route::put('/edit_location/{id}', [LocationsController::class, 'update'])->name('edit_diadiem_post');
+    Route::delete('/delete_locations/{id}', [LocationsController::class, 'delete_locations'])->name('delete_locations');
     Route::get('/search_locations', [LocationsController::class, 'search'])->name('search_locations');
 
 
@@ -105,7 +99,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 
 
 
     // BaiViet
-    
+    Route::get('/list_noidung', [BlogController::class, 'index'])->name('list_noidung');
+    Route::get('/add_noidung', [BlogController::class, 'create'])->name('add_noidung');
+    Route::get('/edit_noidung/show/{id}', [BlogController::class, 'show'])->name('edit_noidung');
+    Route::delete('/delete_noidung/{bai_viet_id}', [BlogController::class, 'destroy'])->name('delete_noidung');
+    Route::get('/search_baiviet', [BlogController::class, 'search'])->name('search_noidung');
 });
 
 

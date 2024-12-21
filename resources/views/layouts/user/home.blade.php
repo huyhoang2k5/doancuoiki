@@ -162,6 +162,12 @@
     border: 1px solid #007bff;
     font-family: Faustina;
   }
+  .search-inputNumber::placeholder ,
+  .search-inputStart::placeholder ,
+  .search-input::placeholder ,
+  .search-select::placeholder {
+    color: black; 
+  }
 
   .search-inputNumber:focus,
   .search-inputStart:focus,
@@ -1234,9 +1240,7 @@
 
 
   <!-- Search -->
-  <div class="search-container">
     @yield('search-container')
-  </div>
 
   <script>
     // Tự động thiết lập giá trị "min" là ngày hôm nay + 1

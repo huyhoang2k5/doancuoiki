@@ -21,7 +21,7 @@ class TourController extends Controller
             $tour->hinh_anh = asset('storage/' . $tour->hinh_anh);
             return $tour;
         });
-        
+
         if ($request->expectsJson()) {
             return response()->json($nameTour);
         }
@@ -57,6 +57,32 @@ class TourController extends Controller
         $totalPrice = $tour->price * $validated['quantity'];
 
         return response()->json(['total_price' => $totalPrice]);
+    }
+    public function search(Request $request)
+    {
+        $wantPlace = $request->input('wantPlace');
+        $placeStart = $request->input('placeStart');
+        $maxPeople = $request->input('maxPeople');
+
+        // Truy vấn dữ liệu tìm kiếm
+        $tours = TourDuLich::query()
+            ->where('ten_tour', 'like', '%' . $wantPlace . '%') 
+            ->where('diem_khoi_hanh','like', '%' . $placeStart . '%') 
+            ->where('so_nguoi', '>', $maxPeople)
+            ->get([
+                'ma_tour',
+                'ten_tour',
+                'gia',
+                'hinh_anh',
+                'ngay_bat_dau',
+                'ngay_ket_thuc',
+                'diem_khoi_hanh',
+                'gio_khoi_hanh',
+                'so_nguoi'
+            ]);
+
+        // Trả về view kết quả tìm kiếm
+        return view('user.tour', compact('tours'));
     }
 
 }

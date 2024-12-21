@@ -4,7 +4,7 @@
         <i class="fas fa-user"></i>
         <!-- Thêm dropdown bên trong user-info -->
         <div class="dropdown">
-            <a class="dropdown-item" href="">
+            <a class="dropdown-item" href="{{route('home')}}">
                 <i class="fas fa-home"> </i>
                 Trang chủ
             </a>
