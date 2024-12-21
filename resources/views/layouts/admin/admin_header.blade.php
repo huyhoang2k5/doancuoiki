@@ -13,6 +13,7 @@
                 @csrf
                 <button type="submit"
                     style="all: unset; cursor: pointer; font: inherit; width: 100%; height: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
                     Đăng Xuất
                 </button>
             </form>

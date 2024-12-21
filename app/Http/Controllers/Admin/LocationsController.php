@@ -13,7 +13,7 @@ class LocationsController extends Controller
 {
     public function index()
     {
-        $data = dia_diem::all();
+        $data = dia_diem::paginate(5)->withQueryString();
         return view('admin.list_diadiem', compact('data'));
     }
 

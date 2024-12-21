@@ -48,13 +48,9 @@ class AccountController extends Controller
 
     public function delete_account($id)
     {
-        try {
             $taikhoan = User::findOrFail($id);
             $taikhoan->delete();
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false], 500);
-        }
+            
         return redirect()->route('list_taikhoan')->with('success', 'Tài Khoản đã được xóa thành công!');
     }
 

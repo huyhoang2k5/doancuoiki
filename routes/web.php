@@ -63,7 +63,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 
 
     /* Account Routing */
     Route::get('/account', [AccountController::class, 'index'])->name('list_taikhoan');
-    Route::get('/edit_account', [AccountController::class, 'show_edit_taikhoan'])->name('edit_taikhoan');
+    Route::get('/edit_account', [AccountController::class, 'show_edit_taikhoan'])->name('edit_taikhoann');
     Route::get('/edit_account/{id}', [AccountController::class, 'edit'])->name('edit_taikhoan');
     Route::put('/edit_account/{id}', [AccountController::class, 'update'])->name('edit_taikhoan_post');
     Route::delete('/delete_account/{id}', [AccountController::class, 'delete_account'])->name('delete_account');
@@ -100,13 +100,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 
 
     // BaiViet
     Route::get('/list_noidung', [BlogController::class, 'index'])->name('list_noidung');
-    Route::get('/add_noidung', [BlogController::class, 'create'])->name('add_noidung');
+    Route::get('/add_noidung/{id}', [BlogController::class, 'show_add_noidung'])->name('add_noidung');
+    Route::post('/add_noidung_post/{id}', [BlogController::class, 'add_noi_dung'])->name('add_noidung_post');
     Route::get('/edit_noidung/show/{id}', [BlogController::class, 'show'])->name('edit_noidung');
+    Route::put('/edit_noidung/show/{id}', [BlogController::class, 'store'])->name('edit_baiviet_post');
     Route::delete('/delete_noidung/{bai_viet_id}', [BlogController::class, 'destroy'])->name('delete_noidung');
     Route::get('/search_baiviet', [BlogController::class, 'search'])->name('search_noidung');
 });
-
-
 
 
 // Route cho trang login

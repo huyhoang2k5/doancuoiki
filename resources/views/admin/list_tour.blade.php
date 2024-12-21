@@ -74,87 +74,89 @@
 
     <script>
         $(document).ready(function() {
-            // Xử lý tìm kiếm
-            $('input[type="search"]').on('keyup', function() {
-                let query = $(this).val();
-                fetchAndUpdateTours(query);
-            });
+    const routes = {
+        editTour: "{{ route('edit_tour', '') }}",
+        deleteTour: "{{ route('delete_tour', '') }}",
+        searchTours: "{{ route('search_tours') }}"
+    };
 
-            // Xử lý sự kiện sửa và xóa bằng event delegation
-            $('tbody').on('click', '.view, .delete', function(e) {
-                e.preventDefault();
+    $('input[type="search"]').on('keyup', function() {
+        let query = $(this).val();
+        fetchAndUpdateTours(query);
+    });
 
-                if ($(this).hasClass('view')) {
-                    // Xử lý sự kiện sửa
-                    const tourId = $(this).data('tour-id');
-                    window.location.href = `{{ route('edit_tour', '') }}/${tourId}`;
+    $('tbody').on('click', '.view, .delete', function(e) {
+        e.preventDefault();
 
-                } else if ($(this).hasClass('delete')) {
-                    // Xử lý sự kiện xóa
-                    const tourId = $(this).data('tour-id');
-
-                    if (confirm('Bạn có chắc chắn muốn xóa?')) {
-                        $.ajax({
-                            url: `{{ route('delete_tour', '') }}/${tourId}`,
-                            type: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    alert('Xóa tour thành công!');
-                                    fetchAndUpdateTours($('input[type="search"]').val());
-                                } else {
-                                    alert('Có lỗi xảy ra khi xóa tour!');
-                                }
-                            },
-                            error: function() {
-                                alert('Có lỗi xảy ra khi xóa tour!');
-                            }
-                        });
-                    }
-                }
-            });
-
-            // Hàm fetch và cập nhật dữ liệu tours
-            function fetchAndUpdateTours(query) {
+        const tourId = $(this).data('tour-id');
+        if ($(this).hasClass('view')) {
+            window.location.href = `${routes.editTour}/${tourId}`;
+        } else if ($(this).hasClass('delete')) {
+            if (confirm('Bạn có chắc chắn muốn xóa?')) {
                 $.ajax({
-                    url: '{{ route('search_tours') }}',
-                    type: 'GET',
-                    data: {
-                        query: query
+                    url: `${routes.deleteTour}/${tourId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(data) {
-                        let rows = '';
-                        data.forEach(item => {
-                            const trangThai = item.trang_thai === 'con_cho' ? 'Còn vé' :
-                                'Hết vé';
-                            rows += `
-                        <tr>
-                            <td>${item.ma_tour}</td>
-                            <td>${item.ten_tour}</td>
-                            <td><img src="/storage/${item.hinh_anh}" alt="Tour Image" style="width:40px"></td>
-                            <td>${new Intl.NumberFormat().format(item.gia)}</td>
-                            <td>${new Date(item.ngay_bat_dau).toLocaleDateString('vi-VN')}</td>
-                            <td>${new Date(item.ngay_ket_thuc).toLocaleDateString('vi-VN')}</td>
-                            <td>${item.diem_khoi_hanh}</td>
-                            <td>${item.gio_khoi_hanh.slice(0,5)}</td>
-                            <td>${item.so_nguoi}</td>
-                            <td>${trangThai}</td>
-                            <td class="action-buttons">
-                                <button class="view" data-tour-id="${item.ma_tour}">Sửa</button>
-                                <button class="delete" data-tour-id="${item.ma_tour}">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                        });
-                        $('tbody').html(rows);
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Xóa tour thành công!');
+                            fetchAndUpdateTours($('input[type="search"]').val());
+                        } else {
+                            alert('Có lỗi xảy ra khi xóa tour!');
+                        }
                     },
-                    error: function() {
-                        alert('Có lỗi xảy ra khi tải dữ liệu!');
+                    error: function(xhr, status, error) {
+                        console.error('Lỗi AJAX:', status, error);
+                        alert('Có lỗi xảy ra khi xóa tour!');
                     }
                 });
             }
+        }
+    });
+
+    function fetchAndUpdateTours(query) {
+        $.ajax({
+            url: routes.searchTours,
+            type: 'GET',
+            data: { query: query },
+            success: function(data) {
+                let rows = '';
+                if (data.length === 0) {
+                    rows = `<tr><td colspan="11">Không có tour nào được tìm thấy.</td></tr>`;
+                } else {
+                    data.forEach(item => {
+                        const trangThai = item.trang_thai === 'con_cho' ? 'Còn vé' : 'Hết vé';
+                        rows += `
+                            <tr>
+                                <td>${item.ma_tour}</td>
+                                <td>${item.ten_tour}</td>
+                                <td><img src="/storage/${item.hinh_anh}" alt="Tour Image" style="width:40px"></td>
+                                <td>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.gia)}</td>
+                                <td>${new Date(item.ngay_bat_dau).toLocaleDateString('vi-VN')}</td>
+                                <td>${new Date(item.ngay_ket_thuc).toLocaleDateString('vi-VN')}</td>
+                                <td>${item.diem_khoi_hanh}</td>
+                                <td>${item.gio_khoi_hanh.slice(0, 5)}</td>
+                                <td>${item.so_nguoi}</td>
+                                <td>${trangThai}</td>
+                                <td class="action-buttons">
+                                    <button class="view" data-tour-id="${item.ma_tour}">Sửa</button>
+                                    <button class="delete" data-tour-id="${item.ma_tour}">Xóa</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+                $('tbody').html(rows);
+            },
+            error: function(xhr, status, error) {
+                console.error('Lỗi AJAX:', status, error);
+                alert('Có lỗi xảy ra khi tải dữ liệu!');
+            }
         });
+    }
+});
+
     </script>
 @endsection

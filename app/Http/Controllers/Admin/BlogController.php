@@ -11,7 +11,7 @@ class BlogController extends Controller
 {
     public function index()
     {
-        $noiDungBaiViet = NoiDungBaiViet::all();
+        $noiDungBaiViet = NoiDungBaiViet::paginate(10)->withQueryString();
         return view('admin.list_noidung', compact('noiDungBaiViet'));
     }
 
@@ -29,7 +29,7 @@ class BlogController extends Controller
         $noiDung = NoiDungBaiViet::findOrFail($bai_viet_id);
         $noiDung->delete();
 
-        return redirect()->route('admin.list_noidung')->with('success', 'Xóa nội dung bài viết thành công.');
+        return redirect()->route('list_noidung')->with('success', 'Xóa nội dung bài viết thành công.');
     }
 
 
@@ -38,36 +38,54 @@ class BlogController extends Controller
     public function store(Request $request, $dia_diem_id)
     {
         $request->validate([
-            'content_type' => 'required|string',
-            'content_data' => 'required',
-            'content_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'content_name' => 'nullable|string',
+            'content_type' => 'required|array',
+            'content_data' => 'required|array',
+            'content_file' => 'nullable|array',
+            'content_name' => 'required|array',
         ]);
 
-        // Tìm nội dung cần cập nhật
-        $noiDung = NoiDungBaiViet::findOrFail($dia_diem_id);
+        // Xử lý từng khối nội dung
+        foreach ($request->content_type as $key => $type) {
+            // Lấy thông tin từ form
+            $contentData = $request->content_data[$key] ?? null;
+            $contentName = $request->content_name[$key] ?? null;
+            $contentFile = $request->file('content_file')[$key] ?? null;
 
-        // Cập nhật thông tin
-        $noiDung->loai_noi_dung = $request->content_type;
-        $noiDung->du_lieu_noi_dung = $request->content_data;
-        if ($request->hasFile('content_file')) {
-
-            if ($noiDung->anh_phu) {
-                Storage::disk('public')->delete($noiDung->anh_phu);
-            }
-
-            $file = $request->file('hinhanh');
-            $fileName = time() . '-' . $file->getClientOriginalName();
-            $path = $file->storeAs('tour', $fileName, 'public');
-            $noiDung->hinh_anh = $path;
+            // Tìm hoặc tạo mới nội dung
+            $noiDung = NoiDungBaiViet::updateOrCreate(
+                [
+                    'dia_diem_id' => $dia_diem_id,
+                    'loai_noi_dung' => $type,
+                    'thu_tu_noi_dung' => $key // Đảm bảo mỗi khối nội dung có một thứ tự riêng
+                ],
+                [
+                    'du_lieu_noi_dung' => $contentData,
+                    'ten_noi_dung' => $contentName,
+                    // Chỉ cập nhật ảnh nếu loại nội dung là 'image'
+                    'anh_phu' => $type === 'image' ? $this->handleFileUpload($contentFile, NoiDungBaiViet::where('dia_diem_id', $dia_diem_id)->where('loai_noi_dung', $type)->first()) : null
+                ]
+            );
         }
-        $noiDung->ten_noi_dung = $request->content_name;
 
-        // Lưu cập nhật
-        $noiDung->save();
-
-        return redirect()->back()->with('success', 'Cập nhật nội dung thành công!');
+        return redirect()->route('list_noidung')
+            ->with('success', 'Cập nhật nội dung thành công!');
     }
+
+    private function handleFileUpload($contentFile, $noiDung = null)
+    {
+        if ($contentFile) {
+            // Nếu có tệp mới, tạo tên mới và lưu tệp mới
+            $fileName = time() . '-' . $contentFile->getClientOriginalName();
+            // Lưu tệp vào thư mục 'tour' và trả về đường dẫn lưu tệp
+            return $contentFile->storeAs('tour', $fileName, 'public');
+        }
+
+        // Nếu không có tệp mới, giữ nguyên tệp cũ (nếu có)
+        return $noiDung ? $noiDung->anh_phu : null;
+    }
+
+
+
 
     public function search(Request $request)
     {
@@ -81,5 +99,57 @@ class BlogController extends Controller
 
         // Trả về dữ liệu dưới dạng JSON
         return response()->json($noidung);
+    }
+
+    public function show_add_noidung($id)
+    {
+        return view('admin.add_noidung', ['dia_diem_id' => $id]);
+    }
+
+    public function add_noi_dung(Request $request, $id)
+    {
+        // Validate dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'content_type' => 'required|array',
+            'content_name' => 'required|array',
+            'content_data' => 'required|array',
+            'content_file.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+
+        $maxThuTu = NoiDungBaiViet::where('dia_diem_id', $id)->max('thu_tu_noi_dung');
+
+        // Lưu các khối nội dung
+        foreach ($validatedData['content_type'] as $index => $type) {
+            $contentData = null;
+            $contentFile = null;
+
+            // Nếu là văn bản
+            if ($type === 'text') {
+                $contentData = $validatedData['content_data'][$index];
+            }
+            // Nếu là hình ảnh, kiểm tra và lưu ảnh
+            if ($type === 'image' && isset($request->content_file[$index])) {
+                $contentFile = $request->file('content_file')[$index]->store('uploads', 'public');
+            }
+
+            // Tăng giá trị `thu_tu_noi_dung`
+            $maxThuTu++;
+
+            // Tạo bản ghi cho từng khối nội dung
+            NoiDungBaiViet::create([
+                'dia_diem_id' => $id,
+                'loai_noi_dung' => $type,
+                'du_lieu_noi_dung' => $contentData,
+                'ten_noi_dung' => $validatedData['content_name'][$index],
+                'anh_phu' => $contentFile,
+                'thu_tu_noi_dung' => $maxThuTu,
+            ]);
+        }
+
+
+
+        // Trở lại và thông báo thành công
+        return redirect()->route('list_noidung')->with('success', 'Dữ liệu đã được lưu thành công.');
     }
 }

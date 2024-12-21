@@ -81,107 +81,114 @@
 
 
     <script>
-        $(document).ready(function() {
-            // Xử lý tìm kiếm
-            $('input[type="search"]').on('keyup', function() {
-                let query = $(this).val();
-                fetchAndUpdateBills(query);
-            });
+       $(document).ready(function() {
+    const routes = {
+        duyetBill: "{{ route('duyet', '') }}",
+        deleteBill: "{{ route('delete_bill', '') }}",
+        searchBills: "{{ route('bills.search') }}"
+    };
 
-            // Xử lý sự kiện duyệt và xóa bằng event delegation
-            $('tbody').on('click', '.view, .delete', function(e) {
-                e.preventDefault();
+    $('input[type="search"]').on('keyup', function() {
+        let query = $(this).val();
+        fetchAndUpdateBills(query);
+    });
 
-                const billId = $(this).data('bill-id');
+    $('tbody').on('click', '.view, .delete', function(e) {
+        e.preventDefault();
 
-                if ($(this).hasClass('view')) {
-                    // Xử lý sự kiện duyệt
-                    $.ajax({
-                        url: `bills/duyet/${billId}`,
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                alert('Duyệt hóa đơn thành công!');
-                                fetchAndUpdateBills($('input[type="search"]').val());
-                            } else {
-                                alert('Có lỗi xảy ra khi duyệt hóa đơn!');
-                            }
-                        },
-                        error: function() {
-                            alert('Có lỗi xảy ra khi duyệt hóa đơn!');
-                        }
-                    });
+        const billId = $(this).data('bill-id');
 
-                } else if ($(this).hasClass('delete')) {
-                    // Xử lý sự kiện xóa
-                    if (confirm('Bạn có chắc chắn muốn xóa?')) {
-                        $.ajax({
-                            url: `{{ route('delete_bill', '') }}/${billId}`,
-                            type: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    alert('Xóa hóa đơn thành công!');
-                                    fetchAndUpdateBills($('input[type="search"]').val());
-                                } else {
-                                    alert('Có lỗi xảy ra khi xóa hóa đơn!');
-                                }
-                            },
-                            error: function() {
-                                alert('Có lỗi xảy ra khi xóa hóa đơn!');
-                            }
-                        });
+        if ($(this).hasClass('view')) {
+            $.ajax({
+                url: `${routes.duyetBill}/${billId}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Duyệt hóa đơn thành công!');
+                        fetchAndUpdateBills($('input[type="search"]').val());
+                    } else {
+                        alert('Có lỗi xảy ra khi duyệt hóa đơn!');
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Lỗi:', xhr.responseText || error);
+                    alert('Có lỗi xảy ra khi duyệt hóa đơn!');
                 }
             });
 
-            // Hàm fetch và cập nhật dữ liệu hóa đơn
-            function fetchAndUpdateBills(query) {
+        } else if ($(this).hasClass('delete')) {
+            if (confirm('Bạn có chắc chắn muốn xóa?')) {
                 $.ajax({
-                    url: '{{ route('bills.search') }}',
-                    type: 'GET',
-                    data: {
-                        query: query
+                    url: `${routes.deleteBill}/${billId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(data) {
-                        let rows = '';
-                        data.forEach(item => {
-                            const trangThai = item.trang_thai_thanh_toan === 'chua_thanh_toan' ?
-                                'Chưa xét duyệt' : 'Đã xét duyệt';
-                            const buttonDuyet = item.trang_thai_thanh_toan ===
-                                'chua_thanh_toan' ?
-                                `<button class="view" data-bill-id="${item.ma_dat_tour}">Duyệt</button>` :
-                                '';
-
-                            rows += `
-                        <tr>
-                            <td>${item.ma_dat_tour}</td>
-                            <td>${item.user.name}</td>
-                            <td>${item.tour_du_lich.ten_tour}</td>
-                            <td>${new Date(item.ngay_dat).toLocaleDateString('vi-VN')}</td>
-                            <td>${item.so_nguoi}</td>
-                            <td>${new Intl.NumberFormat().format(item.tong_tien)}</td>
-                            <td>${trangThai}</td>
-                            <td class="action-buttons">
-                                ${buttonDuyet}
-                                <button class="delete" data-bill-id="${item.ma_dat_tour}">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                        });
-                        $('tbody').html(rows);
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Xóa hóa đơn thành công!');
+                            fetchAndUpdateBills($('input[type="search"]').val());
+                        } else {
+                            alert('Có lỗi xảy ra khi xóa hóa đơn!');
+                        }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Lỗi:', error);
-                        alert('Có lỗi xảy ra khi tải dữ liệu!');
+                        console.error('Lỗi:', xhr.responseText || error);
+                        alert('Có lỗi xảy ra khi xóa hóa đơn!');
                     }
                 });
             }
+        }
+    });
+
+    function getTrangThaiAndButton(trangThai, billId) {
+        const trangThaiText = trangThai === 'chua_thanh_toan' ? 'Chưa xét duyệt' : 'Đã xét duyệt';
+        const buttonDuyet = trangThai === 'chua_thanh_toan' ?
+            `<button class="view" data-bill-id="${billId}">Duyệt</button>` : '';
+        return { trangThaiText, buttonDuyet };
+    }
+
+    function fetchAndUpdateBills(query) {
+        $.ajax({
+            url: routes.searchBills,
+            type: 'GET',
+            data: { query: query },
+            success: function(data) {
+                let rows = '';
+                if (data.length === 0) {
+                    rows = `<tr><td colspan="8">Không có hóa đơn nào được tìm thấy.</td></tr>`;
+                } else {
+                    data.forEach(item => {
+                        const { trangThaiText, buttonDuyet } = getTrangThaiAndButton(item.trang_thai_thanh_toan, item.ma_dat_tour);
+                        rows += `
+                            <tr>
+                                <td>${item.ma_dat_tour}</td>
+                                <td>${item.user.name}</td>
+                                <td>${item.tour_du_lich.ten_tour}</td>
+                                <td>${new Date(item.ngay_dat).toLocaleDateString('vi-VN')}</td>
+                                <td>${item.so_nguoi}</td>
+                                <td>${new Intl.NumberFormat().format(item.tong_tien)}</td>
+                                <td>${trangThaiText}</td>
+                                <td class="action-buttons">
+                                    ${buttonDuyet}
+                                    <button class="delete" data-bill-id="${item.ma_dat_tour}">Xóa</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+                $('tbody').html(rows);
+            },
+            error: function(xhr, status, error) {
+                console.error('Lỗi:', xhr.responseText || error);
+                alert('Có lỗi xảy ra khi tải dữ liệu!');
+            }
         });
+    }
+});
+
     </script>
 @endsection

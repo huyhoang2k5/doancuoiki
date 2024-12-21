@@ -322,28 +322,10 @@ button:hover {
 
     <!-- Sidebar chính cho màn hình lớn -->
     <div class="sidebar d-none d-md-block">
-        <h2>Danh mục</h2>
-        <div class="tour-list1">
-            <div class="tour-section">
-                <h3 class="section-title" onclick="toggleSection('domestic')">Điểm đến yêu thích</h3>
-                <ul id="domestic" class="tour-items">
-                    <li>Cầu Rồng</li>
-                    <li>Biển Mỹ Khê</li>
-                    <li class="highlight">Bà Nà Hill</li>
-                </ul>
-            </div>
-            <div class="tour-section">
-                <h3 class="section-title" onclick="toggleSection('international')">Trải Nghiệm Du Lịch</h3>
-                <ul id="international" class="tour-items">
-                    <li>Khám phá ẩm thực</li>
-                    <li>Cẩm nang du lịch</li>
-                    <li>Lưu ý</li>
-                </ul>
-            </div>
-        </div>
+
 
         <div class="filter-group">
-            <h3>Chọn mức giá</h3>
+            <h2>Chọn mức giá</h2>
             <label><input type="checkbox" class="price-filter" data-min="0" data-max="1000000"> Giá dưới
                 1.000.000đ</label>
             <label><input type="checkbox" class="price-filter" data-min="1000000" data-max="3000000"> 1.000.000đ - 3.000.000đ</label>

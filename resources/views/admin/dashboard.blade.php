@@ -58,8 +58,8 @@
             </div>
             <div class="stat-card">
                 <div class="details">
-                    <h3>ĐÁNH GIÁ</h3>
-                    <p>{{ $danhGia }}</p>
+                    <h3>SỐ LƯỢNG NỘI DUNG</h3>
+                    <p>{{ $baiViet }}</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-comments"></i>

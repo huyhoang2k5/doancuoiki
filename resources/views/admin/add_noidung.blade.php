@@ -8,30 +8,24 @@
     </style>
     <!-- Form thêm nội dung mới -->
     <div class="container-diadiem">
-        <form action="{{ route('edit_baiviet_post', $noiDungs->first()->dia_diem_id) }}" method="POST"
-            enctype="multipart/form-data">
+        <form action="{{ route('add_noidung_post', ['id' => $dia_diem_id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
-            @method('PUT')
             <h1>Khối nội dung</h1>
             <div id="content-blocks">
-                @foreach ($noiDungs as $noiDung)
-                    <div class="content-block">
-                        <select name="content_type[]" onchange="toggleContentType(this)"
-                            style="margin-bottom: 10px; padding: 5px; border-radius: 5px;">
-                            @if ($noiDung->loai_noi_dung == 'text')
-                                <option value="{{ old('content_type[]', $noiDung->loai_noi_dung) }}">Văn bản</option>
-                            @endif
-                            <option value="{{ old('content_type[]', $noiDung->loai_noi_dung) }}">Hình ảnh</option>
-                        </select>
-                        <textarea id="description" name="content_data[]" cols="75" rows="10"
-                            style="margin-bottom: 10px; border-radius: 5px;" required>{{ old('content_data[]', $noiDung->du_lieu_noi_dung) }}</textarea>
-                        <input type="file" name="content_file[]"
-                            style="display: none; margin-bottom: 10px; padding: 5px; border-radius: 5px;">
-                        <input type="text" name="content_name[]"
-                            style="margin-bottom: 10px; padding: 5px; border-radius: 5px;"
-                            value="{{ old('content_name[]', $noiDung->ten_noi_dung) }}" required>
-                    </div>
-                @endforeach
+                <div class="content-block">
+                    <select name="content_type[]" onchange="toggleContentType(this)"
+                        style="margin-bottom: 10px; padding: 5px; border-radius: 5px;">
+                        <option value="text">Văn bản</option>
+                        <option value="image">Hình ảnh</option>
+                    </select>
+                    <textarea id="description" name="content_data[]" required cols="75" rows="10" placeholder="Nhập nội dung"
+                        style="margin-bottom: 10px; border-radius: 5px;" required></textarea>
+                    <input type="file" name="content_file[]"
+                        style="display: none; margin-bottom: 10px; padding: 5px; border-radius: 5px;">
+                    <input type="text" name="content_name[]"
+                        placeholder="Tên khối nội dung (hoặc chú thích)"style="margin-bottom: 10px; padding: 5px; border-radius: 5px;"
+                        required>
+                </div>
             </div>
             <button type="button" class="btn" onclick="addContentBlock()" style="background-color: #47d6f6">Thêm khối
                 nội dung</button>
