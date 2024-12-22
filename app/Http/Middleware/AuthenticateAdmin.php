@@ -18,6 +18,10 @@ class AuthenticateAdmin
         // Lấy thông tin người dùng
         $user = auth()->user();
 
+        if (!$user->is_admin) {
+            return redirect('/')->with('error', 'Bạn không có quyền truy cập trang quản trị.');
+        }
+
         // Lưu thông tin vào session nếu chưa có
         if (!session()->has('user_id')) {
             session([

@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\BookingTourController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\LocationsController;
 use App\Http\Controllers\Admin\ToursController;
+use App\Http\Middleware\AuthenticateAdmin;
 
 
 // Route mặc định cho trang home của người dùng, yêu cầu phải đăng nhập
@@ -53,11 +54,10 @@ Route::group(['prefix' => 'home', 'middleware' => 'auth'], function () {
     Route::post('/payment/process', [BookTourController::class, 'processPayment'])->name('payment.process');
 
     Route::get('/search', [TourController::class, 'search'])->name('search');
-
 });
 
 // Route group cho các route yêu cầu quyền admin
-Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin', 'namespace' => 'Admin', 'name' => 'admin.'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => AuthenticateAdmin::class, 'namespace' => 'Admin', 'name' => 'admin.'], function () {
     // routes/web.php
     Route::get('/', [HomeController::class, 'index'])->name('dashboard');
 
